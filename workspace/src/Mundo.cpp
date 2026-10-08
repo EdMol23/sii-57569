@@ -2,6 +2,7 @@
 //
 //////////////////////////////////////////////////////////////////////
 #include <fstream>
+#include <iostream>
 #include "Mundo.h"
 #include "glut.h"
 
@@ -9,6 +10,7 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+using namespace std;
 
 //////////////////////////////////////////////////////////////////////
 // Construction/Destruction
@@ -114,7 +116,7 @@ void CMundo::OnDraw()
 }
 
 void CMundo::OnTimer(int value)
-{	
+{	//cout<<"Timer ejecutándose! Pos bola:"<<esfera.centro.x<< "," <<esfera.centro.y<<endl;
 	jugador1.Mueve(0.025f);
 	jugador2.Mueve(0.025f);
 	esfera.Mueve(0.025f);
@@ -144,23 +146,33 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=-2-2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=-2-2*rand()/(float)RAND_MAX;
 		puntos1++;
-	}
-
+	  }
 }
 
 void CMundo::OnKeyboardDown(unsigned char key, int x, int y)
 {
 	switch(key)
 	{
-//	case 'a':jugador1.velocidad.x=-1;break;
-//	case 'd':jugador1.velocidad.x=1;break;
-	case 's':jugador1.velocidad.y=-4;break;
-	case 'w':jugador1.velocidad.y=4;break;
-	case 'l':jugador2.velocidad.y=-4;break;
-	case 'o':jugador2.velocidad.y=4;break;
-
+		case 's':
+		case 'S':
+			jugador1.velocidad.y = -4.0f;
+			break;
+		case 'w':
+		case 'W':
+			jugador1.velocidad.y =  4.0f;
+			break;
+		case 'l':
+		case 'L':
+			jugador2.velocidad.y = -4.0f;
+			break;
+		case 'o':
+		case 'O':
+			jugador2.velocidad.y =  4.0f;
+			break;
 	}
 }
+
+
 
 void CMundo::Init()
 {
@@ -169,6 +181,8 @@ void CMundo::Init()
 	p.x1=-7;p.y1=-5;
 	p.x2=7;p.y2=-5;
 	paredes.push_back(p);
+
+
 
 //superior
 	p.x1=-7;p.y1=5;
@@ -192,4 +206,9 @@ void CMundo::Init()
 	jugador2.g=0;
 	jugador2.x1=6;jugador2.y1=-1;
 	jugador2.x2=6;jugador2.y2=1;
+	
+	esfera.centro.x = 0.0f;
+	esfera.centro.y = 0.0f;
+	esfera.velocidad.x = 3.0f;
+	esfera.velocidad.y = 3.0f;
 }
