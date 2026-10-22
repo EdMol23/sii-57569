@@ -10,6 +10,8 @@
 #include <stdio.h>
 #include <string.h>
 #include <math.h>
+#include <unistd.h>
+#include <fcntl.h> 
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////
@@ -23,7 +25,7 @@ CMundo::CMundo()
 
 CMundo::~CMundo()
 {
-
+    close(fd);
 }
 
 void CMundo::InitGL()
@@ -121,6 +123,13 @@ void CMundo::OnTimer(int value)
 	jugador2.Mueve(0.025f);
 	esfera.Mueve(0.025f);
 	int i;
+	
+typedef struct puntuacion
+{
+int jugador;
+int puntos;
+};
+puntuacion p;
 	for(i=0;i<paredes.size();i++)
 	{
 		paredes[i].Rebota(esfera);
@@ -137,7 +146,10 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=2+2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=2+2*rand()/(float)RAND_MAX;
 		puntos2++;
-	}
+		p.jugador=2;
+		p.puntos=puntos2;
+		write(fd,&p,sizeof(puntuacion));
+			}
 
 	if(fondo_dcho.Rebota(esfera))
 	{
@@ -146,6 +158,17 @@ void CMundo::OnTimer(int value)
 		esfera.velocidad.x=-2-2*rand()/(float)RAND_MAX;
 		esfera.velocidad.y=-2-2*rand()/(float)RAND_MAX;
 		puntos1++;
+		p.jugador=1;
+		p.puntos=puntos1;
+		write(fd,&p,sizeof(puntuacion));
+		
+	  }
+	  
+	  if(puntos1>2 || puntos2>2)
+	  {
+	    
+	     this->~CMundo();
+	  
 	  }
 }
 
@@ -176,6 +199,9 @@ void CMundo::OnKeyboardDown(unsigned char key, int x, int y)
 
 void CMundo::Init()
 {
+
+        fd=open("FIFO", O_WRONLY);
+
 	Plano p;
 //pared inferior
 	p.x1=-7;p.y1=-5;
@@ -209,6 +235,10 @@ void CMundo::Init()
 	
 	esfera.centro.x = 0.0f;
 	esfera.centro.y = 0.0f;
-	esfera.velocidad.x = 3.0f;
-	esfera.velocidad.y = 3.0f;
+	esfera.velocidad.x = 5.0f;
+	esfera.velocidad.y = 5.0f;
+	
+	if ((fd= open("FIFO", O_WRONLY)) < 0) {
+                perror("No puede abrirse el FIFO"); 
+        }
 }
