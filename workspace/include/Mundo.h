@@ -21,6 +21,7 @@ public:
 	void Init();
 	CMundo();
 	virtual ~CMundo();	
+	int fd;
 	
 	void InitGL();	
 	void OnKeyboardDown(unsigned char key, int x, int y);
