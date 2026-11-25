@@ -12,6 +12,8 @@
 #include <math.h>
 #include <unistd.h>
 #include <fcntl.h> 
+
+#include <sys/mman.h>
 using namespace std;
 
 //////////////////////////////////////////////////////////////////////
@@ -26,6 +28,8 @@ CMundo::CMundo()
 CMundo::~CMundo()
 {
     close(fd);
+    munmap(p_datos_bot, sizeof(DatosMemCompartida));
+
 }
 
 void CMundo::InitGL()
@@ -163,10 +167,22 @@ puntuacion p;
 		write(fd,&p,sizeof(puntuacion));
 		
 	  }
+	  p_datos_bot->esfera = esfera;
+	  p_datos_bot->raqueta1 = jugador1;
+	  switch (p_datos_bot->accion) {
+               case 1:
+                      CMundo::OnKeyboardDown('w', 0, 0);
+                      break;
+               case -1:
+                      CMundo::OnKeyboardDown('s', 0, 0);
+                      break;
+          }
+
+
 	  
 	  if(puntos1>2 || puntos2>2)
 	  {
-	    
+	    p_datos_bot->cerrar = 1;
 	     this->~CMundo();
 	  
 	  }
@@ -241,4 +257,18 @@ void CMundo::Init()
 	if ((fd= open("FIFO", O_WRONLY)) < 0) {
                 perror("No puede abrirse el FIFO"); 
         }
+        
+        if ((fd_mmap = open("mmap_bot", O_RDWR | O_CREAT | O_TRUNC, 0600)) < 0) {
+                perror("No puede abrirse el fichero de proyección de memoria"); 
+                }
+
+      ftruncate(fd_mmap, sizeof(DatosMemCompartida));
+
+if ((void *)(p_datos_bot = (DatosMemCompartida *)(mmap(NULL,sizeof(DatosMemCompartida), PROT_READ | PROT_WRITE, MAP_SHARED, fd_mmap,
+0))) == (void *)MAP_FAILED) 
+    {
+        perror("Error en la proyección del archivo");
+        close(fd_mmap); 
+    }
+    close(fd_mmap);
 }
